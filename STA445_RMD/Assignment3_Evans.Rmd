@@ -1,0 +1,339 @@
+---
+title: "Assignment Three"
+author: "Calder Evans"
+date: "20 October 2023"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(stringr)
+library(refinr)
+library(lubridate)
+library(mosaicData)
+```
+
+## Chapter Eleven
+### Exercise One
+For the following regular expression, explain in words what it matches on. Then 
+add test strings to demonstrate that it in fact does match on the pattern you 
+claim it does. Make sure that your test set of strings has several examples 
+that match as well as several that do not.
+
+a) This regular expression matches: Detects whether a string contains an "a"
+```{r}
+    strings <- c("a", "b", "aa", "bb")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, 'a') )
+```
+
+
+b) This regular expression matches: Detects whether a string contains "ab", it
+   has to be in that order and that case. 
+```{r}
+    strings <- c("ab", "a", "b", "cab", "z", "ba", "AB")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, 'ab') )
+```
+
+\newpage
+c)  This regular expression matches: Detects whether a string contains an "a" or
+    "b", it just needs to contain one to return true, case does matter.
+```{r}
+    strings <- c("ab", "a", "b", "cab", "z", "ba", "AB")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, '[ab]') )
+```
+
+
+d)  This regular expression matches: Detects whether a string contains an "a" or
+    "b", it can only contain those characters, case matters.
+```{r}
+    strings <- c("ab", "a", "b", "cab", "z", "ba", "AB", "bababa", "cababcabab")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, '^[ab]') )
+```
+
+
+e)  This regular expression matches: Detects whether a string has multiple
+    digits followed by a blank space, followed by an "a" or an "A". It can only 
+    have one space, and the digit part cannot contain non-digits. 
+```{r}
+    strings <- c("78 a", "77 A", "77d  A", "77 ab")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, '\\d+\\s[aA]') )
+```
+
+\newpage
+f)  This regular expression matches: This is the same as the previous part
+    except now it can contain more than one blank spaces.
+```{r}
+    strings <- c("78 a", "77 A", "77   A", "77 ab")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, '\\d+\\s*[aA]') )
+```
+
+
+g)  This regular expression matches: Literally returns true for everything. 
+    ".*" looks for zero or more of anything, which is everything.
+```{r}
+    strings <- c("", "a", "ab", "123")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, '.*') )
+```
+
+
+h) This regular expression matches: Detects whether a string contains exactly 2
+   characters followed by 'bar'.
+```{r}
+    strings <- c("7", "ab", "abcbar", "zybar")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, '^\\w{2}bar') )
+```
+
+
+i) This regular expression matches: Detects whether a string contains either
+   exactly "foo.bar" or any string that starts with 2 characters followed by
+   "bar"
+```{r}
+    strings <- c("fobardfghfdh", "foo.bar")
+    data.frame( string = strings ) %>%
+      mutate( result = str_detect(string, '(foo\\.bar)|(^\\w{2}bar)') )
+```
+
+\newpage
+### Exercise Two
+The following file names were used in a camera trap study. The S number 
+represents the site, P is the plot within a site, C is the camera number within 
+the plot, the first string of numbers is the YearMonthDay and the second string 
+of numbers is the HourMinuteSecond.
+
+```{r}
+    file.names <- c( 'S123.P2.C10_20120621_213422.jpg',
+                     'S10.P1.C1_20120622_050148.jpg',
+                     'S187.P2.C2_20120702_023501.jpg')
+file.names.r <- str_replace_all(file.names, pattern = "_", replacement = "\\.")
+file.names.replaced <- str_split_fixed(file.names.r, pattern = "\\.", n=6)
+
+    camera.strap.study <- data.frame(
+      Site = file.names.replaced[,1],
+      Plot = file.names.replaced[,2],
+      Camera = file.names.replaced[,3],
+      Year = str_sub(file.names.replaced[,4], start=1, end=4),
+      Month = str_sub(file.names.replaced[,4], start=5, end=6),
+      Day = str_sub(file.names.replaced[,4], start=7, end=8),
+      Hour = str_sub(file.names.replaced[,5], start=1, end=2),
+      Minute = str_sub(file.names.replaced[,5], start=3, end=4),
+      Second = str_sub(file.names.replaced[,5], start=5, end=6)
+                                    )
+    camera.strap.study
+```
+
+\newpage
+### Exercise Three
+3. The full text from Lincoln's Gettysburg Address is given below. Calculate the mean word length *Note: consider 'battle-field' as one word with 11 letters*).
+```{r}
+Gettysburg <- 'Four score and seven years ago our fathers brought forth on this 
+continent, a new nation, conceived in Liberty, and dedicated to the proposition 
+that all men are created equal.
+
+Now we are engaged in a great civil war, testing whether that nation, or any 
+nation so conceived and so dedicated, can long endure. We are met on a great 
+battle-field of that war. We have come to dedicate a portion of that field, as 
+a final resting place for those who here gave their lives that that nation might 
+live. It is altogether fitting and proper that we should do this.
+
+But, in a larger sense, we can not dedicate -- we can not consecrate -- we can 
+not hallow -- this ground. The brave men, living and dead, who struggled here, 
+have consecrated it, far above our poor power to add or detract. The world will 
+little note, nor long remember what we say here, but it can never forget what 
+they did here. It is for us the living, rather, to be dedicated here to the 
+unfinished work which they who fought here have thus far so nobly advanced. It 
+is rather for us to be here dedicated to the great task remaining before us -- 
+that from these honored dead we take increased devotion to that cause for which 
+they gave the last full measure of devotion -- that we here highly resolve that 
+these dead shall not have died in vain -- that this nation, under God, shall 
+have a new birth of freedom -- and that government of the people, by the people, 
+for the people, shall not perish from the earth.'
+
+    Gettysburg.space.gone <- str_replace_all(Gettysburg, pattern = "\\-\\-|\\.|\\,", replacement = "")
+    Gettysburg.split <- str_split(Gettysburg.space.gone, pattern = "\\s+")
+    Gettysburg.word.mean.length <- mean(str_length(Gettysburg.split[[1]]))
+      Gettysburg.word.mean.length
+```
+\newpage
+## Chapter Twelve
+### Exercise One
+Convert the following to date or date/time objects.\newline
+a) September 13, 2010.
+```{r}
+    date.object.a <- mdy("September 13, 2010")
+      date.object.a
+```
+
+b) Sept 13, 2010.
+```{r}
+    date.object.b <- mdy("Sept 13, 2010")
+      date.object.b
+```
+  (b) Wrong, "Sept" must not be an acceptable abbreviation.
+
+c) Sep 13, 2010.
+```{r}
+    date.object.c <- mdy("Sep 13, 2010")
+      date.object.c
+```
+
+d) S 13, 2010. Comment on the month abbreviation needs.
+```{r}
+    date.object.d <- mdy("S 13, 2010")
+      date.object.d
+```
+  (d) Wrong, "S" must not be an acceptable abbreviation.
+
+e) 07-Dec-1941.
+```{r}
+    date.object.e <- dmy("07-Dec-1941")
+      date.object.e
+```
+
+f) 1-5-1998. Comment on why you might be wrong.
+```{r}
+    date.object.f.america <- mdy("1-5-1998.")
+    date.object.f.restofworld <- dmy("1-5-1998.")
+      date.object.f.america
+      date.object.f.restofworld
+```
+  (f) Ambiguous since in different parts of the world the order of month, day
+      year is different. 
+
+\newpage
+g) 21-5-1998. Comment on why you know you are correct.
+```{r}
+    date.object.g <- dmy("21-5-1998")
+      date.object.g
+```
+    (g) This one has to be correct because there isn't a 21st month.
+
+h) 2020-May-5 10:30 am
+```{r}
+    date.object.h <- ymd_hm("2020-May-5 10:30")
+      date.object.h
+```
+
+i) 2020-May-5 10:30 am PDT (ex Seattle)
+```{r}
+    date.object.i <- ymd_hm("2020-May-5 10:30", tz = "US/Pacific")
+      date.object.i
+```
+
+j) 2020-May-5 10:30 am AST (ex Puerto Rico)
+```{r}
+    date.object.j <- ymd_hm("2020-May-5 10:30", tz = "America/Puerto_Rico")
+      date.object.j
+```
+
+### Exercise Two
+Using just your date of birth (ex Sep 7, 1998) and today's date calculate the 
+following _Write your code in a manner that the code will work on any date 
+after you were born._:
+    a) Calculate the date of your 64th birthday.
+```{r}
+    birthday <- dmy("11 August 2003")
+    sixtyforth.birthday <- birthday + years(64)
+      sixtyforth.birthday
+```
+
+    b) Calculate your current age (in years). _Hint: Check your age is 
+       calculated correctly if your birthday was yesterday and if it were 
+       tomorrow!_
+```{r}
+    current_age <- (as.period(interval(birthday, today())))
+    current_age_years <- year(current_age)
+      current_age_years
+```
+
+    c) Using your result in part (b), calculate the date of your next birthday.
+```{r}
+    next_birthday <- birthday + years((current_age_years + 1))
+      next_birthday
+```
+
+    d) The number of _days_ until your next birthday.
+```{r}
+    days_till_next_birthday <- as.period(interval(today(), next_birthday))
+      days_till_next_birthday
+```
+
+    e) The number of _months_ and _days_ until your next birthday.
+```{r}
+    days_till_next_birthday_months <- month(as.period(days_till_next_birthday, unit = "months"))
+      days_till_next_birthday_months
+    days_till_next_birthday_days <- day(as.period(days_till_next_birthday, unit = "days"))
+      days_till_next_birthday_days
+```
+
+### Exercise Three
+It is some what surprising that there exists a `dmonths()` function. -->
+  a) Using today's date, add 1 month using `dmonths(1)` and `months()`. Are 
+     there any differences?
+```{r}
+    today() + dmonths(1)
+    today() + months(1)
+```
+    (a) The "dmonths" function includes the time and the time zone, but it also
+        has the date as the 25th of November instead of the 26th of November 
+        like the "months" function.
+  
+  b) Consider `dmonths(1)`. What does this represent and speculate on how the 
+     authors chose to define this, because it isn't just 30 days divided by 7 
+     days in a week.
+  
+    (b) The "dmonths" function must be some derivation from the "dyears"
+        function, but it makes a lot less sense than the other functions
+        because the amount of days in a month is different every month. It is
+        not just adding thirty to the date, I checked. I cannot decipher exactly
+        what it does but I'm assuming the authors included it for calculating
+        leapyears and leapseconds when you do not want to add an entire year.
+
+### Exercise Five
+It turns out there is some interesting periodicity regarding the number of 
+births on particular days of the year.
+    a. Using the `mosaicData` package, load the data set `Births78` which 
+       records the number of children born on each day in the United States in 
+       1978. Because this problem is intended to show how to calculate the 
+       information using the `date`, remove all the columns *except* `date` and 
+       `births`.
+```{r}
+    Births78.date.births <- Births78 %>% select(date, births)
+```
+
+    b. Graph the number of `births` vs the `date` with date on the x-axis. 
+       What stands out to you? Why do you think we have this trend?
+```{r}
+    ggplot( data = Births78.date.births, aes(x=date, y=births)) + geom_point()
+```
+    (b) There is two levels of data with a gap in between them. This probably
+        means that certain days of the week are more common to give birth on.
+    
+    c. To test your assumption, we need to figure out the what day of the week 
+       each observation is. Use `dplyr::mutate` to add a new column named `dow` 
+       that is the day of the week (Monday, Tuesday, etc). This calculation will 
+       involve some function in the `lubridate` package and the `date` column.
+```{r}
+    Births78.date.births.dow <- Births78.date.births %>% 
+      mutate(dow = wday(date, label = TRUE))
+```
+
+\newpage
+    d. Plot the data with the point color being determined by the day of the week 
+    variable.
+```{r}
+    ggplot( data = Births78.date.births.dow, aes(x=date, y=births)) + 
+      geom_point( aes(color=dow))  
+```
+
+    (d) Doctors don't want to work on the weekend!!!

@@ -1,0 +1,219 @@
+---
+title: "445 Assignment One"
+author: "Calder Evans"
+date: "6 October 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Chapter Eight
+
+### Exercise One 
+Create a vector of three elements (2,4,6) and name that vector `vec_a`. 
+Create a second vector, `vec_b`, that contains (8,10,12). Add these two vectors 
+together and name the result `vec_c`.
+
+```{r}
+    vec_a <- c( 2, 4, 6)
+    vec_b <- c( 8, 10, 12)
+    vec_c <- vec_a + vec_b
+      vec_c
+```
+
+### Exercise Two
+Create a vector, named `vec_d`, that contains only two elements (14,20). 
+Add this vector to `vec_a`. What is the result and what do you think R did 
+(look up the recycling rule using Google)? What is the warning message that 
+R gives you?
+
+```{r}
+    vec_d <- c(14,20)
+    vec_d + vec_a
+```
+
+  (a) The result is a vector with three numbers. The first and second values
+      are computed relatively easily. The first value in the printed vector
+      results from adding the first value of vector d with the first value of 
+      vector a . The second value in the printed vector results from adding the 
+      second value of vector d with the second value of vector a. The third 
+      number "recycles" the first value of vector d and adds it to the third 
+      value of vector a.
+  (b) The warning message is reminding you that the vectors are not the same 
+      size.
+
+### Exercise Three
+Next add 5 to the vector vec_a. What is the result and what did R do? Why 
+doesn't it give you a warning message similar to what you saw in the previous 
+problem?
+
+```{r}
+    5 + vec_a
+```
+
+  a) The result adds 5 to every value in the a vector
+  b) This sum does not give you a error like the previous problem because it is
+     computing vector algebra, where you add 5 to every value.
+
+### Exercise Four
+Generate the vector of integers $\left\{ 1,2,\dots5\right\}$ in two different 
+ways. 
+    a) First using the `seq()` function 
+    b) Using the `a:b` shortcut.
+
+```{r}
+    seq( from=1, to=5, by=1)
+    1:5
+```
+
+### Exercise Five
+Generate the vector of even numbers $\left\{ 2,4,6,\dots,20\right\}$ 
+    a) Using the seq() function and 
+    b) Using the a:b shortcut and some subsequent algebra. 
+       *Hint: Generate the vector 1-10 and then multiple it by 2*.
+
+```{r}
+    seq( from=2, to=20, by=2)
+    2 * 1:10
+```
+
+### Exercise Six
+Generate a vector of 21 elements that are evenly placed between 0 and 1 using 
+the `seq()` command and name this vector `x`. 
+
+```{r}
+    x <- seq( from=0, to=1, by=0.05)
+      x
+```
+
+### Exercise Seven
+Generate the vector $\left\{ 2,4,8,2,4,8,2,4,8\right\}$ using the `rep()` 
+command to replicate the vector c(2,4,8). 
+
+```{r}
+    rep( c(2,4,8), 3)
+```
+
+### Exercise Eight
+Generate the vector $\left\{ 2,2,2,2,4,4,4,4,8,8,8,8\right\}$ using the 
+`rep()` command. You might need to check the help file for rep() to see all of 
+the options that rep() will accept. In particular, look at the optional argument 
+`each=`.
+
+```{r}
+    rep( c(2,4,8), each=3)
+```
+\newpage
+### Exercise Ten
+a) Create the matrix in two ways and save the resulting matrix as `M`.
+    i. Create the matrix using some combination of the `seq()` and 
+       `matrix()` commands.
+       
+```{r}
+    M <- matrix(seq( from=2, to=30, by=2), nrow=3, ncol=5)
+      M
+```
+
+    ii. Create the same matrix by some combination of multiple `seq()` 
+        commands and either the `rbind()` or `cbind()` command.
+
+```{r}
+    a <- seq( from=2, to=10, by=2)
+    b <- seq( from=12, to=20, by=2)
+    c <- seq( from=22, to=30, by=2)
+    M <- rbind( a, b, c)
+      M
+```
+
+b) Extract the second row out of `M`.
+
+```{r}
+    M[2,]
+```
+c) Extract the element in the third row and second column of `M`.
+
+```{r}
+    M[3,2]
+```
+
+### Exercise Twelve
+The following code creates a `data.frame` and then has two different methods 
+for removing the rows with `NA` values in the column `Grade`. 
+Explain the difference between the two.
+```{r, eval=FALSE}
+    df <- data.frame(name= c('Alice','Bob','Charlie','Daniel'),
+                     Grade = c(6,8,NA,9))
+    
+    df[ -which(  is.na(df$Grade) ), ]
+    df[  which( !is.na(df$Grade) ), ]
+```
+
+(a) The subtraction sign in the first method subtracts the "NA" values from the 
+    data set.
+    The exclamation point in the second method is a "not" operator and it takes
+    out all the values that aren't "NA"
+\newpage
+
+### Exercise Fourteen
+Create and manipulate a list.
+  a) Create a list named my.test with elements
+      + x = c(4,5,6,7,8,9,10)
+      + y = c(34,35,41,40,45,47,51)
+      + slope = 2.82
+      + p.value = 0.000131
+```{r}
+    mytest <- list( x=c(4,5,6,7,8,9,10), 
+                    y=c(34,35,41,40,45,47,51), 
+                    slope=2.82, 
+                    p.value=0.000131)
+      mytest
+```
+
+    b) Extract the second element in the list.
+```{r}
+    mytest[[2]]
+```
+
+    c) Extract the element named `p.value` from the list.
+```{r}
+    mytest$p.value
+```
+\newpage
+
+## Chapter Nine
+### Exercise One
+Download from GitHub the data file [Example_5.xls]
+(https://github.com/dereksonderegger/444/raw/master/data-raw/Example_5.xls). 
+Open it in Excel and figure out which sheet of data we should import into R. 
+At the same time figure out how many initial rows need to be skipped. Import 
+the data set into a data frame and show the structure of the imported data 
+using the `str()` command. Make sure that your data has $n=31$ observations
+and the three columns are appropriately named. If you make any modifications 
+to the data file, comment on those modifications.
+
+
+```{r}
+    library(readxl)
+    data.trees <- data.frame(read_excel('Example_5.xls', 
+                                        sheet='RawData', 
+                                        range=("A5:C36")))
+      head(data.trees)
+```
+
+### Exercise Two
+Download from GitHub the data file [Example_3.xls]
+(https://github.com/dereksonderegger/444/raw/master/data-raw/Example_3.xls). 
+Import the data set into a data frame and show the structure of the imported 
+data using the `tail()` command which shows the last few rows of a data table. 
+Make sure the Tesla values are `NA` where appropriate and that both 
+`-9999` and `NA` are imported as NA values. If you make any modifications to 
+the data file, comment on those modifications.
+
+```{r}
+    data.cars <- read_excel('Example_3.xls', sheet=2, range=("A1:L34"), na=c("NA", "-9999"))
+      tail(data.cars)
+```
+
